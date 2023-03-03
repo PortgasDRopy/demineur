@@ -1,4 +1,4 @@
 ﻿  unnom.c
-C:\Users\ederveaux\Documents\unnom\unnom.c(216,11): warning C4244: 'fonction' : conversion de 'time_t' en 'unsigned int', perte possible de données
-C:\Users\ederveaux\Documents\unnom\unnom.c(76): warning C4716: 'setDifficulty' : doit retourner une valeur
+C:\Users\ederveaux\Documents\unnom\unnom.c(232,11): warning C4244: 'fonction' : conversion de 'time_t' en 'unsigned int', perte possible de données
+C:\Users\ederveaux\Documents\unnom\unnom.c(78): warning C4716: 'setDifficulty' : doit retourner une valeur
   unnom.vcxproj -> C:\Users\ederveaux\Documents\unnom\x64\Debug\unnom.exe
