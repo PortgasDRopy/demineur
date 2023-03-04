@@ -79,23 +79,9 @@ int setDifficulty(){
 //permet de générer aléatoirement des bombes
 void generateMines() {
     int i, j, count = 0;
-    int* kaboom;
-    kaboom = malloc(sizeof(int) * (rows * cols));
-    while (count < (rows * cols)) {
-        kaboom[count] = rand() % (rows * cols);
-        count++;
-    }
-    int count_b = 0;
-    while (count_b < mines) {
-        int c = 0, best = 0;
-        for (int k = 0; k < cols * rows; k++) {
-            if (kaboom[k] > best) {
-                c = k;
-            }
-        }
-        i = c / rows;
-        j = c % rows;
-        kaboom[c] = -1;
+    while (count < mines) {
+        i = rand() % rows;
+        j = rand()% cols;
         if (grid[i][j] != -1) {
             grid[i][j] = -1;
             if (i > 0) {
@@ -141,7 +127,7 @@ void generateMines() {
                     grid[i][j + 1]++;
                 }
             }
-            count_b++;
+            count++;
         }
     }
 }
