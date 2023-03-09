@@ -335,8 +335,7 @@ int main(int argc, char* argv[]) {
     int w_case = width / cols;
     int h_case = height / rows;
     SDL_Event event;
-    int x, y, arret;
-    arret = 0;
+    int x, y;
     char action;
     window = SDL_CreateWindow("SDL2", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         width, height, SDL_WINDOW_RESIZABLE, SDL_WINDOW_SHOWN);
@@ -366,9 +365,7 @@ int main(int argc, char* argv[]) {
     while (1) {
         int victory = 1;
         action = "z";
-        if (arret != 1) {
-            printGrid();
-        }
+        printGrid();
         //permet de choisir la case
         SDL_WaitEvent(&event);
         if (event.type == SDL_MOUSEBUTTONDOWN){
@@ -398,14 +395,10 @@ int main(int argc, char* argv[]) {
                         }
                     }
                 }
-                victory = 69;
-                if (arret != 1) {
-                    printGrid();
-                }
+                printGrid();
                 SDL_Delay(500);
                 SDL_RenderCopy(renderer, textureD, NULL, &dv);
                 SDL_RenderPresent(renderer);
-                arret = 1;
                 SDL_Delay(2000);
                 break;
             }
@@ -422,15 +415,11 @@ int main(int argc, char* argv[]) {
                 }
             }
             //en cas de victoire (toutes les bombes sont trouvés)
-            if (victory == 1) {
-                victory = 69;
-                if (arret != 1) {
-                    printGrid();
-                }
+            if (victory == 1){
+                printGrid();
                 SDL_Delay(500);
                 SDL_RenderCopy(renderer, textureV, NULL, &dv);
                 SDL_RenderPresent(renderer);
-                arret = 1;
                 SDL_Delay(2000);
                 break;
             }
