@@ -335,7 +335,7 @@ int main(int argc, char* argv[]) {
     int w_case = width / cols;
     int h_case = height / rows;
     SDL_Event event;
-    int x, y;
+    int x, y, arret = 0;
     char action;
     window = SDL_CreateWindow("SDL2", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         width, height, SDL_WINDOW_RESIZABLE, SDL_WINDOW_SHOWN);
@@ -363,25 +363,27 @@ int main(int argc, char* argv[]) {
     SDL_FreeSurface(victoire);
     SDL_Rect dv = { 0, 0, width, height };
     while (1) {
-        int victory = 1;
         action = "z";
-        printGrid();
-        //permet de choisir la case
-        SDL_WaitEvent(&event);
-        if (event.type == SDL_MOUSEBUTTONDOWN) {
-            if (event.button.button == SDL_BUTTON_LEFT) {
-                x = event.button.x;
-                y = event.button.y;
-                y = y / h_case;
-                x = x / w_case;
-                action = 'r';
-            }
-            else if (event.button.button == SDL_BUTTON_RIGHT) {
-                x = event.button.x;
-                y = event.button.y;
-                y = y / h_case;
-                x = x / w_case;
-                action = 'f';
+        if (arret == 0) {
+            int victory = 1;
+            printGrid();
+            //permet de choisir la case
+            SDL_WaitEvent(&event);
+            if (event.type == SDL_MOUSEBUTTONDOWN) {
+                if (event.button.button == SDL_BUTTON_LEFT) {
+                    x = event.button.x;
+                    y = event.button.y;
+                    y = y / h_case;
+                    x = x / w_case;
+                    action = 'r';
+                }
+                else if (event.button.button == SDL_BUTTON_RIGHT) {
+                    x = event.button.x;
+                    y = event.button.y;
+                    y = y / h_case;
+                    x = x / w_case;
+                    action = 'f';
+                }
             }
         }
         //permet de choisir l'action
@@ -399,8 +401,25 @@ int main(int argc, char* argv[]) {
                 SDL_Delay(500);
                 SDL_RenderCopy(renderer, textureD, NULL, &dv);
                 SDL_RenderPresent(renderer);
-                SDL_Delay(2000);
-                break;
+                arret = 1;
+                SDL_WaitEvent(&event);
+                if (event.type == SDL_KEYBOARDDOWN) {
+                    if (event.key.keysim.sim == SDLK_SPACE) {
+                        arret = 0;
+                        srand(time(NULL));
+                        //reset les variables
+                        for (int i = 0; i < rows; i++) {
+                            for (int j = 0; j < cols; j++) {
+                                grid[i][j] = 0;
+                                revealed[i][j] = 0;
+                                flags[i][j] = 0;
+                            }
+                        }
+                        generateMines();
+                    else if (event.key.keysim.sim == SDLK_ESCAPE) {
+                        break;
+                    }
+                }
             }
             reveal(y, x);
             //permet de vérifier si le joueur a gagné
@@ -420,8 +439,25 @@ int main(int argc, char* argv[]) {
                 SDL_Delay(500);
                 SDL_RenderCopy(renderer, textureV, NULL, &dv);
                 SDL_RenderPresent(renderer);
-                SDL_Delay(2000);
-                break;
+                arret = 1;
+                SDL_WaitEvent(&event);
+                if (event.type == SDL_KEYBOARDDOWN) {
+                    if (event.key.keysim.sim == SDLK_SPACE) {
+                        arret = 0;
+                        srand(time(NULL));
+                        //reset les variables
+                        for (int i = 0; i < rows; i++) {
+                            for (int j = 0; j < cols; j++) {
+                                grid[i][j] = 0;
+                                revealed[i][j] = 0;
+                                flags[i][j] = 0;
+                            }
+                        }
+                        generateMines();
+                    else if (event.key.keysim.sim == SDLK_ESCAPE) {
+                        break;
+                    }
+                }
             }
         }
         //permet de poser ou d'enlever un drapeau
@@ -435,6 +471,7 @@ int main(int argc, char* argv[]) {
         }
     }
     statut = EXIT_SUCCESS;
+Quit:
     for (int k = 0; k < rows; k++) {
         free(grid[k]);
     }
@@ -447,7 +484,6 @@ int main(int argc, char* argv[]) {
         free(flags[j]);
     }
     free(flags);
-Quit:
     if (NULL != renderer)
         SDL_DestroyRenderer(renderer);
     if (NULL != window)
