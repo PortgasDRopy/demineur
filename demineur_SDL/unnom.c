@@ -1,4 +1,4 @@
- //Sud au cul.cpp : Ce fichier contient la fonction 'main'. L'exécution du programme commence et se termine à cet endroit.
+//Sud au cul.cpp : Ce fichier contient la fonction 'main'. L'exécution du programme commence et se termine à cet endroit.
  //
 
 #include <stdio.h>
@@ -15,7 +15,7 @@ int** flags;
 int width;
 int height;
 int statut = EXIT_FAILURE;
-SDL_Renderer* renderer = NULL; 
+SDL_Renderer* renderer = NULL;
 SDL_Window* window = NULL;
 //permet au joueur de choisir la difficulté à laquelle il souhaite jouer et adapte la taille de la grille en conséquence
 void setDifficulty() {
@@ -295,7 +295,7 @@ void printGrid() {
 #ifdef __EMSCRIPTEN__
 #include<emscripten/emscripten.h>
 #endif
- 
+
 SDL_Window* window;
 SDL_Renderer* renderer;
 SDL_Surface* surface;
@@ -368,7 +368,7 @@ int main(int argc, char* argv[]) {
         printGrid();
         //permet de choisir la case
         SDL_WaitEvent(&event);
-        if (event.type == SDL_MOUSEBUTTONDOWN){
+        if (event.type == SDL_MOUSEBUTTONDOWN) {
             if (event.button.button == SDL_BUTTON_LEFT) {
                 x = event.button.x;
                 y = event.button.y;
@@ -385,7 +385,7 @@ int main(int argc, char* argv[]) {
             }
         }
         //permet de choisir l'action
-        if (action == 'r') {
+        if (action == 'r' && flags[y][x] != 1) {
             //en cas de défaite (une bombe est révélé)
             if (grid[y][x] == -1) {
                 for (int i = 0; i < rows; i++) {
@@ -415,7 +415,7 @@ int main(int argc, char* argv[]) {
                 }
             }
             //en cas de victoire (toutes les bombes sont trouvés)
-            if (victory == 1){
+            if (victory == 1) {
                 printGrid();
                 SDL_Delay(500);
                 SDL_RenderCopy(renderer, textureV, NULL, &dv);
