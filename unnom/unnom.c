@@ -12,6 +12,11 @@ int rows, cols, mines;
 int** grid;
 int** revealed;
 int** flags;
+int width;
+int height;
+int statut = EXIT_FAILURE;
+SDL_Renderer* renderer = NULL; 
+SDL_Window* window = NULL;
 //permet au joueur de choisir la difficulté à laquelle il souhaite jouer et adapte la taille de la grille en conséquence
 void setDifficulty() {
     int dif;
@@ -22,6 +27,8 @@ void setDifficulty() {
         rows = 9;
         cols = 11;
         mines = 10;
+        width = cols * 50;
+        height = rows * 50;
         grid = malloc(sizeof(int*) * rows);
         for (int k = 0; k < rows; k++) {
             grid[k] = malloc(sizeof(int) * cols);
@@ -39,6 +46,8 @@ void setDifficulty() {
         rows = 15;
         cols = 19;
         mines = 40;
+        width = cols * 50;
+        height = rows * 50;
         grid = malloc(sizeof(int*) * rows);
         for (int k = 0; k < rows; k++) {
             grid[k] = malloc(sizeof(int) * cols);
@@ -56,6 +65,8 @@ void setDifficulty() {
         rows = 21;
         cols = 25;
         mines = 99;
+        width = cols * 45;
+        height = rows * 45;
         grid = malloc(sizeof(int*) * rows);
         for (int k = 0; k < rows; k++) {
             grid[k] = malloc(sizeof(int) * cols);
@@ -171,135 +182,9 @@ void reveal(int i, int j) {
     }
 }
 
-
-//int main2() {
-//    while (1) {
-//        int victory = 1;
-//        system("CLS");
-//        printGrid();
-//        //permet de choisir la case
-//        printf("Enter x and y coordinates (separated by space): ");
-//        scanf_s("%d %d", &x, &y);
-//        while (getchar() != '\n');
-//
-//        if (x < 0 || x >= cols || y < 0 || y >= rows) {
-//            printf("Invalid coordinates!\n");
-//            continue;
-//        }
-//        //permet de choisir l'action
-//        printf("Enter r for reveal, f for flag");
-//        scanf_s("%c", &action, 1);
-//        while (getchar() != '\n');
-//
-//        if (action == 'r') {
-//            //en cas de défaite (une bombe est révélé)
-//            if (grid[y][x] == -1) {
-//                system("CLS");
-//                for (int i = 0; i < rows; i++) {
-//                    for (int j = 0; j < cols; j++) {
-//                        if (grid[i][j] == -1) {
-//                            revealed[i][j] = 1;
-//                        }
-//                    }
-//                }
-//                printGrid();
-//                printf("You lost!\n");
-//                break;
-//            }
-//
-//            reveal(y, x);
-//            //permet de vérifier si le joueur a gagné
-//            for (int i = 0; i < rows; i++) {
-//                for (int j = 0; j < cols; j++) {
-//                    if (victory == 1) {
-//                        if (revealed[i][j] == 0 && grid[i][j] != -1) {
-//                            victory = 0;
-//                            break;
-//                        }
-//                    }
-//                }
-//            }
-//            //en cas de victoire (toutes les bombes sont trouvés)
-//            if (victory == 1) {
-//                system("CLS");
-//                printGrid();
-//                printf("You won!\n");
-//                break;
-//            }
-//        }
-//        //permet de poser ou d'enlever un drapeau
-//        if (action == 'f') {
-//            if (flags[y][x] == 0) {
-//                flags[y][x] = 1;
-//            }
-//            else {
-//                flags[y][x] = 0;
-//            }
-//        }
-//    }
-//}
-
-#ifdef __EMSCRIPTEN__
-#include<emscripten/emscripten.h>
-#endif
- 
-SDL_Window* window;
-SDL_Renderer* renderer;
-SDL_Surface* surface;
-int done;
-
-
-SDL_bool test(SDL_Point point, SDL_Rect rect)
-{
-    if (point.x >= rect.x && point.x <= (rect.x + rect.w) &&
-        point.y >= rect.y && point.y <= (rect.y + rect.h))
-        return SDL_TRUE;
-    else
-        return SDL_FALSE;
-}
-
-
-int main(int argc, char* argv[]) {
-    SDL_Window* window = NULL;
-    SDL_Renderer* renderer = NULL;
-    int statut = EXIT_FAILURE;
-
-    /* Initialisation, création de la fenêtre et du renderer. */
-    if (0 != SDL_Init(SDL_INIT_VIDEO))
-    {
-        fprintf(stderr, "Erreur SDL_Init : %s", SDL_GetError());
-        goto Quit;
-    }
-    srand(time(NULL));
-    setDifficulty();
-    //reset les variables
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            grid[i][j] = 0;
-            revealed[i][j] = 0;
-            flags[i][j] = 0;
-        }
-    }
-    generateMines();
-    int width = 640;
-    int height = 480;
+void printGrid() {
     int w_case = width / cols;
     int h_case = height / rows;
-
-    window = SDL_CreateWindow("SDL2", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        width, height, SDL_WINDOW_SHOWN);
-    if (NULL == window)
-    {
-        fprintf(stderr, "Erreur SDL_CreateWindow : %s", SDL_GetError());
-        goto Quit;
-    }
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if (NULL == renderer)
-    {
-        fprintf(stderr, "Erreur SDL_CreateRenderer : %s", SDL_GetError());
-        goto Quit;
-    }
-    /* C’est à partir de maintenant que ça se passe. */
     SDL_Surface* herbe = NULL;
     SDL_Surface* terre = NULL;
     SDL_Surface* flag = NULL;
@@ -325,7 +210,7 @@ int main(int argc, char* argv[]) {
     SDL_Texture* textureF = NULL;
     SDL_Texture* textureB = NULL;
     herbe = SDL_LoadBMP("herbe.bmp");
-    terre = SDL_LoadBMP("Terre.bmp");
+    terre = SDL_LoadBMP("terre.bmp");
     flag = SDL_LoadBMP("flag.bmp");
     bomb = SDL_LoadBMP("kaboom.bmp");
     one = SDL_LoadBMP("1.bmp");
@@ -336,11 +221,6 @@ int main(int argc, char* argv[]) {
     six = SDL_LoadBMP("6.bmp");
     seven = SDL_LoadBMP("7.bmp");
     eight = SDL_LoadBMP("8.bmp");
-    if (NULL == herbe || NULL == terre || NULL == flag || NULL == bomb || NULL == one || NULL == two || NULL == three || NULL == four || NULL == five || NULL == six || NULL == seven || NULL == eight)
-    {
-        fprintf(stderr, "Erreur SDL_LoadBMP : %s", SDL_GetError());
-        goto Quit;
-    }
     textureT = SDL_CreateTextureFromSurface(renderer, herbe);
     texture0 = SDL_CreateTextureFromSurface(renderer, terre);
     textureF = SDL_CreateTextureFromSurface(renderer, flag);
@@ -353,8 +233,8 @@ int main(int argc, char* argv[]) {
     texture6 = SDL_CreateTextureFromSurface(renderer, six);
     texture7 = SDL_CreateTextureFromSurface(renderer, seven);
     texture8 = SDL_CreateTextureFromSurface(renderer, eight);
-    /* On libère la surface, on n’en a plus besoin */
-    SDL_FreeSurface(herbe); 
+    //On libère la surface, on n’en a plus besoin //
+    SDL_FreeSurface(herbe);
     SDL_FreeSurface(terre);
     SDL_FreeSurface(flag);
     SDL_FreeSurface(bomb);
@@ -366,16 +246,11 @@ int main(int argc, char* argv[]) {
     SDL_FreeSurface(six);
     SDL_FreeSurface(seven);
     SDL_FreeSurface(eight);
-    if (NULL == texture1 || NULL == texture2 || NULL == texture3 || NULL == texture4 || NULL == texture5 || NULL == texture6 || NULL == texture7 || NULL == texture8 || NULL == texture0 || NULL == textureT || NULL == textureF || NULL == textureB)
-    {
-        fprintf(stderr, "Erreur SDL_CreateTextureFromSurface : %s", SDL_GetError());
-        goto Quit;
-    }
-    for (int i = 0; i < cols; i++) {
-        for (int j = 0; j < rows; j++) {
-            int x = 0 + i * w_case;
-            int y = 0 + j * h_case;
-            SDL_Rect rect = {x, y, w_case, h_case};
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            int casex = 0 + j * w_case;
+            int casey = 0 + i * h_case;
+            SDL_Rect rect = { casex, casey, w_case, h_case };
             if (flags[i][j] == 1 && revealed[i][j] == 0) {
                 SDL_RenderCopy(renderer, textureF, NULL, &rect);
             }
@@ -384,6 +259,9 @@ int main(int argc, char* argv[]) {
             }
             else if (grid[i][j] == -1) {
                 SDL_RenderCopy(renderer, textureB, NULL, &rect);
+            }
+            else if (grid[i][j] == 0) {
+                SDL_RenderCopy(renderer, texture0, NULL, &rect);
             }
             else if (grid[i][j] == 1) {
                 SDL_RenderCopy(renderer, texture1, NULL, &rect);
@@ -412,7 +290,161 @@ int main(int argc, char* argv[]) {
         }
     }
     SDL_RenderPresent(renderer);
-    SDL_Delay(3000);
+}
+
+#ifdef __EMSCRIPTEN__
+#include<emscripten/emscripten.h>
+#endif
+ 
+SDL_Window* window;
+SDL_Renderer* renderer;
+SDL_Surface* surface;
+int done;
+
+
+SDL_bool test(SDL_Point point, SDL_Rect rect)
+{
+    if (point.x >= rect.x && point.x <= (rect.x + rect.w) &&
+        point.y >= rect.y && point.y <= (rect.y + rect.h))
+        return SDL_TRUE;
+    else
+        return SDL_FALSE;
+}
+
+
+int main(int argc, char* argv[]) {
+    SDL_Window* window = NULL;
+
+    // Initialisation, création de la fenêtre et du renderer. //
+    if (0 != SDL_Init(SDL_INIT_AUDIO, SDL_INIT_VIDEO))
+    {
+        fprintf(stderr, "Erreur SDL_Init : %s", SDL_GetError());
+        goto Quit;
+    }
+    srand(time(NULL));
+    setDifficulty();
+    //reset les variables
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            grid[i][j] = 0;
+            revealed[i][j] = 0;
+            flags[i][j] = 0;
+        }
+    }
+    generateMines();
+    int w_case = width / cols;
+    int h_case = height / rows;
+    SDL_Event event;
+    int x, y, arret;
+    arret = 0;
+    char action;
+    window = SDL_CreateWindow("SDL2", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+        width, height, SDL_WINDOW_RESIZABLE, SDL_WINDOW_SHOWN);
+    if (NULL == window)
+    {
+        fprintf(stderr, "Erreur SDL_CreateWindow : %s", SDL_GetError());
+        goto Quit;
+    }
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if (NULL == renderer)
+    {
+        fprintf(stderr, "Erreur SDL_CreateRenderer : %s", SDL_GetError());
+        goto Quit;
+    }
+    // C’est à partir de maintenant que ça se passe. //
+    SDL_Surface* defaite = NULL;
+    SDL_Surface* victoire = NULL;
+    SDL_Texture* textureD = NULL;
+    SDL_Texture* textureV = NULL;
+    defaite = SDL_LoadBMP("defaite.bmp");
+    victoire = SDL_LoadBMP("victoire.bmp");
+    textureD = SDL_CreateTextureFromSurface(renderer, defaite);
+    textureV = SDL_CreateTextureFromSurface(renderer, victoire);
+    SDL_FreeSurface(defaite);
+    SDL_FreeSurface(victoire);
+    SDL_Rect dv = { 0, 0, width, height };
+    while (1) {
+        int victory = 1;
+        action = "z";
+        if (arret != 1) {
+            printGrid();
+        }
+        //permet de choisir la case
+        SDL_WaitEvent(&event);
+        if (event.type == SDL_MOUSEBUTTONDOWN){
+            if (event.button.button == SDL_BUTTON_LEFT) {
+                x = event.button.x;
+                y = event.button.y;
+                y = y / h_case;
+                x = x / w_case;
+                action = 'r';
+            }
+            else if (event.button.button == SDL_BUTTON_RIGHT) {
+                x = event.button.x;
+                y = event.button.y;
+                y = y / h_case;
+                x = x / w_case;
+                action = 'f';
+            }
+        }
+        //permet de choisir l'action
+        if (action == 'r') {
+            //en cas de défaite (une bombe est révélé)
+            if (grid[y][x] == -1) {
+                for (int i = 0; i < rows; i++) {
+                    for (int j = 0; j < cols; j++) {
+                        if (grid[i][j] == -1) {
+                            revealed[i][j] = 1;
+                        }
+                    }
+                }
+                victory = 69;
+                if (arret != 1) {
+                    printGrid();
+                }
+                SDL_Delay(500);
+                SDL_RenderCopy(renderer, textureD, NULL, &dv);
+                SDL_RenderPresent(renderer);
+                arret = 1;
+                SDL_Delay(2000);
+                break;
+            }
+            reveal(y, x);
+            //permet de vérifier si le joueur a gagné
+            for (int i = 0; i < rows; i++) {
+                for (int j = 0; j < cols; j++) {
+                    if (victory == 1) {
+                        if (revealed[i][j] == 0 && grid[i][j] != -1) {
+                            victory = 0;
+                            break;
+                        }
+                    }
+                }
+            }
+            //en cas de victoire (toutes les bombes sont trouvés)
+            if (victory == 1) {
+                victory = 69;
+                if (arret != 1) {
+                    printGrid();
+                }
+                SDL_Delay(500);
+                SDL_RenderCopy(renderer, textureV, NULL, &dv);
+                SDL_RenderPresent(renderer);
+                arret = 1;
+                SDL_Delay(2000);
+                break;
+            }
+        }
+        //permet de poser ou d'enlever un drapeau
+        if (action == 'f') {
+            if (flags[y][x] == 0) {
+                flags[y][x] = 1;
+            }
+            else {
+                flags[y][x] = 0;
+            }
+        }
+    }
     statut = EXIT_SUCCESS;
     for (int k = 0; k < rows; k++) {
         free(grid[k]);
