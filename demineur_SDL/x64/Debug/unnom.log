@@ -1,6 +1,7 @@
 ﻿  unnom.c
-C:\Users\ederveaux\Documents\unnom\unnom.c(319,39): warning C4020: 'SDL_Init' : paramètres réels trop nombreux
-C:\Users\ederveaux\Documents\unnom\unnom.c(324,11): warning C4244: 'fonction' : conversion de 'time_t' en 'unsigned int', perte possible de données
-C:\Users\ederveaux\Documents\unnom\unnom.c(342,46): warning C4020: 'SDL_CreateWindow' : paramètres réels trop nombreux
-C:\Users\ederveaux\Documents\unnom\unnom.c(368,21): warning C4047: '=' : les niveaux d'indirection de 'char' et de 'char [2]' sont différents
-  unnom.vcxproj -> C:\Users\ederveaux\Documents\unnom\x64\Debug\unnom.exe
+C:\Users\teame\Downloads\demineur_SDL\unnom.c(319,39): warning C4020: 'SDL_Init': too many actual parameters
+C:\Users\teame\Downloads\demineur_SDL\unnom.c(324,11): warning C4244: 'function': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\teame\Downloads\demineur_SDL\unnom.c(341,46): warning C4020: 'SDL_CreateWindow': too many actual parameters
+C:\Users\teame\Downloads\demineur_SDL\unnom.c(369,25): warning C4047: '=': 'char' differs in levels of indirection from 'char [2]'
+C:\Users\teame\Downloads\demineur_SDL\unnom.c(521): warning C4716: 'SDL_main': must return a value
+  unnom.vcxproj -> C:\Users\teame\Downloads\demineur_SDL\x64\Debug\unnom.exe

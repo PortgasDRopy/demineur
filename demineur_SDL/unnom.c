@@ -248,8 +248,8 @@ void printGrid() {
     SDL_FreeSurface(eight);
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
-            int casex = 0 + j * w_case;
-            int casey = 0 + i * h_case;
+            int casex = j * w_case;
+            int casey = i * h_case;
             SDL_Rect rect = { casex, casey, w_case, h_case };
             if (flags[i][j] == 1 && revealed[i][j] == 0) {
                 SDL_RenderCopy(renderer, textureF, NULL, &rect);
@@ -312,7 +312,7 @@ SDL_bool test(SDL_Point point, SDL_Rect rect)
 }
 
 
-int main(int argc, char* argv[]) {
+int main2() {
     SDL_Window* window = NULL;
 
     // Initialisation, création de la fenêtre et du renderer. //
@@ -335,7 +335,7 @@ int main(int argc, char* argv[]) {
     int w_case = width / cols;
     int h_case = height / rows;
     SDL_Event event;
-    int x, y;
+    int x, y, arret = 0;
     char action;
     window = SDL_CreateWindow("SDL2", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         width, height, SDL_WINDOW_RESIZABLE, SDL_WINDOW_SHOWN);
@@ -355,33 +355,35 @@ int main(int argc, char* argv[]) {
     SDL_Surface* victoire = NULL;
     SDL_Texture* textureD = NULL;
     SDL_Texture* textureV = NULL;
-    defaite = SDL_LoadBMP("defaite.bmp");
-    victoire = SDL_LoadBMP("victoire.bmp");
-    textureD = SDL_CreateTextureFromSurface(renderer, defaite);
-    textureV = SDL_CreateTextureFromSurface(renderer, victoire);
-    SDL_FreeSurface(defaite);
-    SDL_FreeSurface(victoire);
     SDL_Rect dv = { 0, 0, width, height };
     while (1) {
-        action = "z";
         int victory = 1;
-        printGrid();
-        //permet de choisir la case
-        SDL_WaitEvent(&event);
-        if (event.type == SDL_MOUSEBUTTONDOWN) {
-            if (event.button.button == SDL_BUTTON_LEFT) {
-                x = event.button.x;
-                y = event.button.y;
-                y = y / h_case;
-                x = x / w_case;
-                action = 'r';
-            }
-            else if (event.button.button == SDL_BUTTON_RIGHT) {
-                x = event.button.x;
-                y = event.button.y;
-                y = y / h_case;
-                x = x / w_case;
-                action = 'f';
+        if (arret == 0) {
+            defaite = SDL_LoadBMP("defaite.bmp");
+            victoire = SDL_LoadBMP("victoire.bmp");
+            textureD = SDL_CreateTextureFromSurface(renderer, defaite);
+            textureV = SDL_CreateTextureFromSurface(renderer, victoire);
+            SDL_FreeSurface(defaite);
+            SDL_FreeSurface(victoire);
+            printGrid();
+            action = "z";
+            //permet de choisir la case
+            SDL_WaitEvent(&event);
+            if (event.type == SDL_MOUSEBUTTONDOWN) {
+                if (event.button.button == SDL_BUTTON_LEFT) {
+                    x = event.button.x;
+                    y = event.button.y;
+                    y = y / h_case;
+                    x = x / w_case;
+                    action = 'r';
+                }
+                else if (event.button.button == SDL_BUTTON_RIGHT) {
+                    x = event.button.x;
+                    y = event.button.y;
+                    y = y / h_case;
+                    x = x / w_case;
+                    action = 'f';
+                }
             }
         }
         //permet de choisir l'action
@@ -395,12 +397,39 @@ int main(int argc, char* argv[]) {
                         }
                     }
                 }
-                printGrid();
-                SDL_Delay(500);
-                SDL_RenderCopy(renderer, textureD, NULL, &dv);
-                SDL_RenderPresent(renderer);
-                SDL_Delay(1000);
-                break;
+                if (arret == 0) {
+                    printGrid();
+                    SDL_Delay(1000);
+                    SDL_RenderCopy(renderer, textureD, NULL, &dv);
+                    SDL_RenderPresent(renderer);
+                }
+                arret = 1;
+                SDL_WaitEvent(&event);
+                if (event.type == SDL_KEYDOWN) {
+                    if (event.key.keysym.scancode == SDL_SCANCODE_SPACE) {
+                        for (int k = 0; k < rows; k++) {
+                            free(grid[k]);
+                        }
+                        free(grid);
+                        for (int i = 0; i < rows; i++) {
+                            free(revealed[i]);
+                        }
+                        free(revealed);
+                        for (int j = 0; j < rows; j++) {
+                            free(flags[j]);
+                        }
+                        free(flags);
+                        if (NULL != renderer)
+                            SDL_DestroyRenderer(renderer);
+                        if (NULL != window)
+                            SDL_DestroyWindow(window);
+                        SDL_Quit();
+                        main2();
+                    }
+                    else if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
+                        break;
+                    }
+                }
             }
             reveal(y, x);
             //permet de vérifier si le joueur a gagné
@@ -416,18 +445,49 @@ int main(int argc, char* argv[]) {
             }
             //en cas de victoire (toutes les bombes sont trouvés)
             if (victory == 1) {
-                printGrid();
-                SDL_Delay(500);
-                SDL_RenderCopy(renderer, textureV, NULL, &dv);
-                SDL_RenderPresent(renderer);
-                SDL_Delay(1000);
-                break;
+                if (arret == 0) {
+                    printGrid();
+                    SDL_Delay(1000);
+                    SDL_RenderCopy(renderer, textureV, NULL, &dv);
+                    SDL_RenderPresent(renderer);
+                }
+                arret = 1;
+                SDL_WaitEvent(&event);
+                if (event.type == SDL_KEYDOWN) {
+                    if (event.key.keysym.scancode == SDL_SCANCODE_SPACE) {
+                        for (int k = 0; k < rows; k++) {
+                            free(grid[k]);
+                        }
+                        free(grid);
+                        for (int i = 0; i < rows; i++) {
+                            free(revealed[i]);
+                        }
+                        free(revealed);
+                        for (int j = 0; j < rows; j++) {
+                            free(flags[j]);
+                        }
+                        free(flags);
+                        if (NULL != renderer)
+                            SDL_DestroyRenderer(renderer);
+                        if (NULL != window)
+                            SDL_DestroyWindow(window);
+                        SDL_Quit();
+                        main2();
+                    }
+                    else if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
+                        break;
+                    }
+                }
             }
         }
         //permet de poser ou d'enlever un drapeau
         if (action == 'f') {
             if (flags[y][x] == 0) {
                 flags[y][x] = 1;
+                if (NULL != renderer) {
+                    SDL_DestroyRenderer(renderer);
+                }
+                renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
             }
             else {
                 flags[y][x] = 0;
@@ -454,4 +514,8 @@ Quit:
         SDL_DestroyWindow(window);
     SDL_Quit();
     return statut;
+}
+
+int main(int argc, char* argv[]) {
+    main2();
 }

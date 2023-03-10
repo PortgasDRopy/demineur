@@ -1,1 +1,2 @@
 C:\Users\ederveaux\Documents\unnom\x64\Debug\unnom.exe
+C:\Users\teame\Downloads\demineur_SDL\x64\Debug\unnom.exe
